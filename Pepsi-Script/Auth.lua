@@ -90,4 +90,4 @@ print("[Armor] Authenticated! Loading script...")
 -- ============================================================
 --  YOUR ACTUAL SCRIPT BELOW (or load it via another HttpGet)
 -- ============================================================
--- loadstring(game:HttpGet("https://your-actual-script-url.com"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/jojosbytes/Pepsi-library/refs/heads/main/Pepsi-Script/Script.lua"))()
