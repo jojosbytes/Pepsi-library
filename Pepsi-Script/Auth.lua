@@ -1,15 +1,34 @@
 -- ============================================================
---  ARMOR AUTH  |  Host this file on GitHub Raw / Pastebin
+--  ARMOR AUTH  |  XOR Protected
 -- ============================================================
 
 local HttpService = game:GetService("HttpService")
 local Players     = game:GetService("Players")
 local player      = Players.LocalPlayer
 
-local SUPABASE_URL      = "https://qnftmkqrdegojzfjxdbi.supabase.co"
-local SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFuZnRta3FyZGVnb2p6Zmp4ZGJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxMzExNDgsImV4cCI6MjA5NDcwNzE0OH0.KkKGbvfdSYWKh_EgSrbeQ9Ccul8_xxNTfa1xIjn0sTM"
+-- XOR Decoder
+local function xd(hex, key)
+    local out = {}
+    local i = 1
+    for byte in hex:gmatch("(%x%x)") do
+        local c = bit32.bxor(tonumber(byte, 16), string.byte(key, ((i - 1) % #key) + 1))
+        table.insert(out, string.char(c))
+        i = i + 1
+    end
+    return table.concat(out)
+end
 
--- Read the key the user set before calling loadstring
+-- Encrypted strings (no plain URLs/keys visible in file)
+local _K  = "PepsiArmor2024"
+local _U  = "381104031a7b5d421e1c54445f5f211714160e2e181709184a54505d7e1605030823131e0a5c515f"
+local _AK = "351c3a1b0b061104201b7879674e19543e1a20323b033d4751737b02190e002b3f02385441174b7a42576328193c000b080937305a695f722a3f233a1a081c2703285b79047d3e2305290713060c5c344b6a75623e0742035f1b1f1d5b28757a427d39121910047801373c3b04795f7225074247000d31271f2b6a615b7b3a20433d132a0a2015374a7e7653232c1d255d223124593f5871077a1406073d1304422227421c7b597f170706150d122b3a241a6d7555672207152250021118034a6d484a7a04031142110818035f01667d"
+local _SU = "381104031a7b5d421d13451e555d240d05111c32171f0c1d5c44575a244b131c046e1802051d41524b4035165f230c310104421e5b524055221c5f010c27014207175354411b3d04191d4611171d1c1b1f6351463915045c3a2200041f061c5c4755"
+
+local SUPABASE_URL      = xd(_U,  _K)
+local SUPABASE_ANON_KEY = xd(_AK, _K)
+local SCRIPT_URL        = xd(_SU, _K)
+
+-- Read key
 local key = getgenv().script_key
 
 if not key or key == "" or key == "YOUR_KEY_HERE" then
@@ -30,7 +49,7 @@ end
 
 local hwid = getHWID()
 
--- HTTP request using executor's request() function
+-- HTTP request using executor request()
 local function req(method, endpoint, body)
     local ok, res = pcall(function()
         return request({
@@ -45,21 +64,16 @@ local function req(method, endpoint, body)
             Body = body and HttpService:JSONEncode(body) or nil,
         })
     end)
-
     if not ok then return nil end
     if not res or res.StatusCode < 200 or res.StatusCode >= 300 then return nil end
-
-    if res.Body and res.Body ~= "" then
-        local decoded = HttpService:JSONDecode(res.Body)
-        return decoded
-    end
-
-    return true -- PATCH returns empty body
+    if res.Body and res.Body ~= "" then return HttpService:JSONDecode(res.Body) end
+    return true
 end
 
+-- Validate key
 local data = req("GET", "keys?key=eq." .. key .. "&select=key,status,hwid")
 
-if not data or #data == 0 then
+if not data or type(data) ~= "table" or #data == 0 then
     error("[Armor] Invalid key.")
     return
 end
@@ -76,8 +90,7 @@ if row.status ~= "active" then
     return
 end
 
-if row.hwid == nil then
-    -- First use — lock HWID
+if row.hwid == nil or row.hwid == HttpService.JSONNull then
     req("PATCH", "keys?key=eq." .. key, {
         hwid      = hwid,
         last_seen = os.date("!%Y-%m-%dT%H:%M:%SZ"),
@@ -87,15 +100,11 @@ elseif row.hwid ~= hwid then
     error("[Armor] HWID mismatch. Reset your HWID in the Discord panel.")
     return
 else
-    -- Update last seen
     req("PATCH", "keys?key=eq." .. key, {
         last_seen = os.date("!%Y-%m-%dT%H:%M:%SZ"),
     })
+    print("[Armor] Authenticated!")
 end
 
-print("[Armor] Authenticated! Loading script...")
-
--- ============================================================
---  YOUR ACTUAL SCRIPT BELOW (or load it via another HttpGet)
--- ============================================================
-loadstring(game:HttpGet("https://raw.githubusercontent.com/jojosbytes/Pepsi-library/refs/heads/main/Pepsi-Script/Script.lua"))()
+-- Load actual script
+loadstring(game:HttpGet(SCRIPT_URL))()
