@@ -42,7 +42,7 @@ local function _ad()
         end
     end)
     if _d then
-        game:GetService("Players").LocalPlayer:Kick("\n[Clarity Anti-Dump]\n\nDumper detected.\nDisable dumping tools and try again.")
+        -- game:GetService("Players").LocalPlayer:Kick("Dumper detected.\nDisable dumping tools and try again.")
         return false
     end
     return true
