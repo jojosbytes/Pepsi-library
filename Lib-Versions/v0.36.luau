@@ -2325,7 +2325,7 @@ function library:CreateWindow(options, ...)
 				if lasthidebing and ((os_clock() - lasthidebing) <= 12) then
 					main.Visible = not main.Visible
 				end
-				lasthidebing = nil
+				lasthidebing = os_clock()
 			end
 		end)
 	end
@@ -7744,90 +7744,90 @@ function library:CreateWindow(options, ...)
 			Value = "rbxassetid://4427304036",
 			Callback = updatecolorsnotween
 		}}, {"AddColorpicker", "__Designer.Colorpicker.ImageColor", backgroundsection, {
-			Name = "Image Color",
-			Flag = "__Designer.Background.ImageColor",
-			Value = WhiteColor3,
-			Callback = updatecolorsnotween,
-			__designer = 1
-		}}, {"AddSlider", "__Designer.Slider.ImageTransparency", backgroundsection, {
-			Name = "Image Transparency",
-			Flag = "__Designer.Background.ImageTransparency",
-			Value = 95,
-			Min = 0,
-			Max = 100,
-			Format = "Image Transparency: %s%%",
-			Textbox = true,
-			Callback = updatecolorsnotween
-		}}, {"AddToggle", "__Designer.Toggle.UseBackgroundImage", backgroundsection, {
-			Name = "Use Background Image",
-			Flag = "__Designer.Background.UseBackgroundImage",
-			Value = true,
-			Callback = updatecolorsnotween
-		}}, {"AddPersistence", "__Designer.Persistence.ThemeFile", filessection, {
-			Name = "Theme Profile",
-			Flag = "__Designer.Files.ThemeFile",
-			Workspace = "Pepsi Lib Themes",
-			Flags = flags,
-			Suffix = "Theme",
-			Desginer = true
-		}}, {"AddTextbox", "__Designer.Textbox.WorkspaceName", filessection, {
-			Name = "Workspace Name",
-			Value = library.WorkspaceName or "Unnamed Workspace",
-			Flag = "__Designer.Files.WorkspaceFile",
-			Callback = function(n, o)
-				persistoptions.Workspace = n or o
-			end
-		}}, {"AddPersistence", "__Designer.Persistence.WorkspaceProfile", filessection, persistoptions}, {"AddButton", "__Designer.Button.TerminateGUI", settingssection, {{
-			Name = "Terminate GUI",
-			Callback = library.unload
-		}, {
-			Name = "Reset GUI",
-			Callback = resetall
-		}, {
-			Name = "Reset Designer",
-			Callback = function()
-				destroyrainbows = true
-				pcall(function()
-					for k, v in next, elements do
-						if v and k and v.Set and (v.Default ~= nil) and (library_flags[k] ~= v.Default) and (string.sub(k, 1, 11) == "__Designer.") then
-							v:Set(v.Default)
-						end
+				Name = "Image Color",
+				Flag = "__Designer.Background.ImageColor",
+				Value = WhiteColor3,
+				Callback = updatecolorsnotween,
+				__designer = 1
+			}}, {"AddSlider", "__Designer.Slider.ImageTransparency", backgroundsection, {
+				Name = "Image Transparency",
+				Flag = "__Designer.Background.ImageTransparency",
+				Value = 95,
+				Min = 0,
+				Max = 100,
+				Format = "Image Transparency: %s%%",
+				Textbox = true,
+				Callback = updatecolorsnotween
+			}}, {"AddToggle", "__Designer.Toggle.UseBackgroundImage", backgroundsection, {
+				Name = "Use Background Image",
+				Flag = "__Designer.Background.UseBackgroundImage",
+				Value = true,
+				Callback = updatecolorsnotween
+			}}, {"AddPersistence", "__Designer.Persistence.ThemeFile", filessection, {
+				Name = "Theme Profile",
+				Flag = "__Designer.Files.ThemeFile",
+				Workspace = "Pepsi Lib Themes",
+				Flags = flags,
+				Suffix = "Theme",
+				Desginer = true
+			}}, {"AddTextbox", "__Designer.Textbox.WorkspaceName", filessection, {
+				Name = "Workspace Name",
+				Value = library.WorkspaceName or "Unnamed Workspace",
+				Flag = "__Designer.Files.WorkspaceFile",
+				Callback = function(n, o)
+					persistoptions.Workspace = n or o
+				end
+			}}, {"AddPersistence", "__Designer.Persistence.WorkspaceProfile", filessection, persistoptions}, {"AddButton", "__Designer.Button.TerminateGUI", settingssection, {{
+				Name = "Terminate GUI",
+				Callback = library.unload
+			}, {
+					Name = "Reset GUI",
+					Callback = resetall
+				}, {
+					Name = "Reset Designer",
+					Callback = function()
+						destroyrainbows = true
+						pcall(function()
+							for k, v in next, elements do
+								if v and k and v.Set and (v.Default ~= nil) and (library_flags[k] ~= v.Default) and (string.sub(k, 1, 11) == "__Designer.") then
+									v:Set(v.Default)
+								end
+							end
+						end)
 					end
-				end)
-			end
-		}, {
-			Name = "Copy Theme",
-			Callback = function()
-				pcall(function()
-					local JS = elements["__Designer.Files.ThemeFile"]:GetJSON()
-					if userInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
-						JS = string.format("%q", JS)
+				}, {
+					Name = "Copy Theme",
+					Callback = function()
+						pcall(function()
+							local JS = elements["__Designer.Files.ThemeFile"]:GetJSON()
+							if userInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
+								JS = string.format("%q", JS)
+							end
+							return (setclipboard or shared.clipboard_func or warn)(JS)
+						end)
+					end,
+					CallbackRight = function()
+						pcall(function()
+							local JS = library.GetJSON(nil, nil, true)
+							if userInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
+								JS = string.format("%q", JS)
+							end
+							return (setclipboard or shared.clipboard_func or warn)(JS)
+						end)
 					end
-					return (setclipboard or shared.clipboard_func or warn)(JS)
-				end)
-			end,
-			CallbackRight = function()
-				pcall(function()
-					local JS = library.GetJSON(nil, nil, true)
-					if userInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
-						JS = string.format("%q", JS)
-					end
-					return (setclipboard or shared.clipboard_func or warn)(JS)
-				end)
-			end
-		}}}, {"AddKeybind", "__Designer.Keybind.ShowHideKey", settingssection, {
-			Name = "Show/Hide Key",
-			Location = library.configuration,
-			Flag = "__Designer.Settings.ShowHideKey",
-			LocationFlag = "hideKeybind",
-			Value = library.configuration.hideKeybind,
-			CoreBinding = true,
-			Callback = function()
-				lasthidebing = os.clock()
-			end
-		}}, {"AddLabel", "__Designer.Label.Version", settingssection, {
-			Name = "Library Version: " .. tostring(library.Version or "?")
-		}}}
+				}}}, {"AddKeybind", "__Designer.Keybind.ShowHideKey", settingssection, {
+				Name = "Show/Hide Key",
+				Location = library.configuration,
+				Flag = "__Designer.Settings.ShowHideKey",
+				LocationFlag = "hideKeybind",
+				Value = library.configuration.hideKeybind,
+				CoreBinding = true,
+				Callback = function()
+					lasthidebing = os.clock()
+				end
+			}}, {"AddLabel", "__Designer.Label.Version", settingssection, {
+				Name = "Library Version: " .. tostring(library.Version or "?")
+			}}}
 		if setclipboard and daaata[8] then
 			local common_table = daaata[8][4]
 			if common_table then
