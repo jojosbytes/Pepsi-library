@@ -8067,19 +8067,7 @@ function library:CreateWindow(options, ...)
 		spawn(function()
 			local os_clock = os.clock
 			local starttime = os_clock()
-			while (os_clock() - starttime) < 12 do
-				if homepage then
-					windowFunctions.GoHome = homepage
-					local x, e = pcall(homepage)
-					if x then
-					elseif e then
-						warn("Error going to Homepage:", e)
-					end
-					x, e = nil
-					break
-				end
-				task.wait()
-			end
+			
 			local whatDoILookLike = options.Themeable or options.DefaultTheme or options.Theme
 			if whatDoILookLike and (type(whatDoILookLike) == "table") then
 				whatDoILookLike.LockTheme = whatDoILookLike.LockTheme or options.LockTheme or nil
