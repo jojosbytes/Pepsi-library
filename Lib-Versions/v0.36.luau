@@ -8063,44 +8063,11 @@ function library:CreateWindow(options, ...)
 			library.LoadFile(shared.auto_load_profile)
 		end)
 	end
+
 	if shared.force_designer or options.Themeable or options.DefaultTheme or options.Theme then
-		spawn(function()
-			local os_clock = os.clock
-			local starttime = os_clock()
-			
-			local whatDoILookLike = options.Themeable or options.DefaultTheme or options.Theme
-			if whatDoILookLike and (type(whatDoILookLike) == "table") then
-				whatDoILookLike.LockTheme = whatDoILookLike.LockTheme or options.LockTheme or nil
-				whatDoILookLike.HideTheme = whatDoILookLike.HideTheme or options.HideTheme or nil
-			else
-				whatDoILookLike = nil
-			end
-			windowFunctions:CreateDesigner(whatDoILookLike)
-			if options.DefaultTheme or options.Theme then
-				spawn(function()
-					local content = options.DefaultTheme or options.Theme or options.JSON or options.ThemeJSON
-					if content and (type(content) == "string") and (#content > 1) then
-						local good, jcontent = JSONDecode(content)
-						if good and jcontent then
-							for cflag, val in next, jcontent do
-								local data = elements[cflag]
-								if data and (data.Type ~= "Persistence") then
-									if data.Set then
-										data:Set(val)
-									elseif data.RawSet then
-										data:RawSet(val)
-									else
-										library.flags[cflag] = val
-									end
-								end
-							end
-						end
-					end
-				end)
-			end
-			os_clock, starttime = nil
-		end)
+   		windowFunctions:CreateDesigner(options.Themeable or options.DefaultTheme or options.Theme)
 	end
+
 	return windowFunctions
 end
 library.NewWindow = library.CreateWindow
